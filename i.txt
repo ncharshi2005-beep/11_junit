@@ -1,0 +1,84 @@
+The objective of this lab is to create a Java application, write JUnit test cases, integrate them with Maven, and execute everything through a Jenkins pipeline.
+
+1. Prerequisites
+Ensure the following are installed and verified on your system:
+
+
+Java 17+ 
+
+
+Maven 
+
+
+Git 
+
+
+Jenkins (running with browser access) 
+
+Verification commands:
+
+Bash
+java -version
+mvn -version
+git --version
+
+
+2. Step-by-Step Implementation
+Step 1: Create Maven Project
+Run the following command to generate the project structure:
+
+Bash
+mvn archetype:generate -DgroupId=com.devops.lab -DartifactId=lab11-junit -Dpackaging=jar -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+cd lab11-junit
+
+
+
+
+codes
+<dependencies>
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.10.0</version>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.1.2</version>
+        </plugin>
+    </plugins>
+</build>
+
+
+3. Execution and Jenkins IntegrationRun Locally: Execute mvn clean test to verify the build and 3 test cases pass.Push to Git: Initialize your repo and push the code to GitHub.Jenkins Pipeline: Create a "Pipeline" job in Jenkins. Use the following Jenkinsfile in your project root:Groovypipeline {
+    agent any
+    tools {
+        jdk 'JDK17'
+        maven 'Maven3'
+    }
+    stages {
+        stage('Checkout') {
+            steps { git '<your-repo-url>' }
+        }
+        stage('Build') {
+            steps { sh 'mvn clean compile' }
+        }
+        stage('Test') {
+            steps { sh 'mvn test' }
+        }
+    }
+    post {
+        always {
+            junit '**/target/surefire-reports/*.xml'
+        }
+    }
+}
+Expected OutcomeAutomated Validation: Jenkins will mark the build as SUCCESS if all tests pass.Test Reports: You can view detailed results and execution times via the "Test Result" link in the Jenkins UI.Fail-Fast: If you intentionally break a test (e.g., changing a+b to a+b+1), the build will be marked as FAILED, demonstrating a CI quality gate.
+
+
+
